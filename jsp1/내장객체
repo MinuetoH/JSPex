@@ -1,0 +1,50 @@
+JSP에서 제공되는 내장(기본)객체 : 스크립트 영역에서 사용됨
+                           생성,선언 필요없이 모든 jsp 에서 사용이 가능 
+                            
+8+1 
+1. request 객체 : 요청 객체. 브라우저에서 요청한 정보 저장
+      <form action='호출할jsp페이지'>
+        <input type='..' name='파라미터이름' >
+      </form>
+
+   파라미터 관련 주요 메서드
+      String getParameter(파라미터이름)
+      String[] getParameterValues(파라미터이름)
+      Enumeration getParameterNames()
+      
+2. response 객체: 응답 객체. 브라우저로 명령전달 객체
+
+   리다이렉트 
+     sendRedirect("호출할jsp페이지명")
+
+3. pageContext객체:페이지별로 자원과흐름을 관리 하는 객체.
+   
+   forward 
+     forward("호출할jsp페이지명") 
+
+4. session 객체 : 브라우저 상태 정보를 저장하는 객체
+   
+     setMaxInactiveInterval(초) : session 유지시간을 초단위
+     getLastAccessedTime() 
+     
+5. application 객체 : 웹어프리케이션 정보 저장 객체.
+6. out 객체 : 브라우저로 정보를 전달하기위한 출력스트림.
+7. page 객체 : jsp 페이지 자체. 
+8. config 객체 : 서블릿에 파라미터값을 전달하기위한 객체                            
+
+9. exception 객체 : 예외 객체. 예외페이지에서만 제공되는 객체
+
+
+영역담당
+page 영역 : pageContext 객체 공유
+request 영역 : request 객체 공유
+session 영역 : session 객체 공유
+application 영역 : application 객체 공유
+
+영역담당객체의 메서드
+   속성등록 : setAttribute(키,값)
+   속성조회 : 값=getAttribute(키)
+   속성제거 : removeAttribute(키)
+
+
+
