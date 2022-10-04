@@ -1,10 +1,11 @@
 package model;
 
-import java.awt.geom.RectangularShape;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MemberDao {
 	//mem 내용을 db에 insert
@@ -13,7 +14,7 @@ public class MemberDao {
 		Connection conn = DBConnection.getConnection();
 		//2. Statement 객체
 		/*
-		 * PrepareStatement : Statement의 하위 인터페이스
+		 * PreparedStatement : Statement의 하위 인터페이스
 		 *                    미리 sql 문장을 db에 전송
 		 *                    파라미터로 값을 전달 방식
 		 */
@@ -45,16 +46,16 @@ public class MemberDao {
 		return false;			
 	}
 	public Member selectOne(String id) {
-		Connection conn = DBConnection.getConnection();
-		String sql = "select * from member where id= ?";
+		Connection conn =DBConnection.getConnection();
+		String sql = "select * From member where id= ?";
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
 		try {
 			pstmt = conn.prepareStatement(sql);
-			pstmt.setString(1, sql);
-			//ResultSet executeQuery : select 구문 
+			pstmt.setString(1, id);
+			//ResultSet executeQuery : select 구문 실행
 			rs = pstmt.executeQuery();
-			if(rs.next()) {	//id에 해당하는 레코드 존재?
+			if(rs.next()) { //id에 해당하는 레코드 존재?
 				Member mem = new Member();
 				mem.setId(rs.getString("id"));
 				mem.setPass(rs.getString("pass"));
@@ -67,8 +68,71 @@ public class MemberDao {
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
-		}finally {
+		} finally {
 			DBConnection.close(conn, pstmt, rs);
+		}
+		return null;
+	}
+	public boolean update(Member mem) {
+		Connection conn = DBConnection.getConnection();
+		PreparedStatement pstmt = null;
+		String sql = "update member set name=?,gender=?,email=?,"
+				+ "tel=?,picture=? where id=?";
+		try {
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, mem.getName());
+			pstmt.setInt(2, mem.getGender());
+			pstmt.setString(3, mem.getEmail());
+			pstmt.setString(4, mem.getTel());
+			pstmt.setString(5, mem.getPicture());
+			pstmt.setString(6, mem.getId());
+			return pstmt.executeUpdate() > 0;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			DBConnection.close(conn, pstmt, null);
+		}
+		return false;
+	}
+	public boolean delete(String id) {
+		Connection conn = DBConnection.getConnection();
+		PreparedStatement pstmt = null;
+		try {
+			pstmt = conn.prepareStatement
+					("delete from member where id=?");
+			pstmt.setString(1, id);
+			return pstmt.executeUpdate() > 0;
+		} catch(SQLException e) {
+			e.printStackTrace();
+		}finally {
+			DBConnection.close(conn, pstmt, null);
+		}
+		return false;
+	}
+	public List<Member> list() {
+		Connection conn = DBConnection.getConnection();
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		List<Member> list = new ArrayList<>();
+		try {
+			pstmt = conn.prepareStatement("select * from member");
+			rs = pstmt.executeQuery();
+			while(rs.next()) {
+				Member m = new Member();
+				m.setId(rs.getString("id"));
+				m.setPass(rs.getString("pass"));
+				m.setName(rs.getString("name"));
+				m.setGender(rs.getInt("gender"));
+				m.setTel(rs.getString("tel"));
+				m.setEmail(rs.getString("email"));
+				m.setPicture(rs.getString("picture"));
+				list.add(m);	//list에 db의 정보를 저장한 Member 객체 추가
+			}
+			return list;	//member 테이블의 모든 정보를 저장	
+		}catch(SQLException e) {
+			e.printStackTrace();
+		}finally {
+			DBConnection.close(conn, pstmt, null);
 		}
 		return null;
 	}
