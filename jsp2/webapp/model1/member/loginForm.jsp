@@ -17,6 +17,12 @@
 		   return false
 	   }
    }
+   function win_open(page) {
+	   let op = "width=500, height=350, left=50, top=150"
+	   open(page+".jsp","",op)	//idForm.jsp
+	   //open("idForm.jsp","윈도우이름",옵션)
+	   
+   }
 </script>
 <link rel="stylesheet" href="../../css/main.css">
 </head><body>

@@ -1,3 +1,5 @@
+<%@page import="model.Member"%>
+<%@page import="model.MemberDao"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%-- /jsp2/src/main/webapp/model1/member/password.jsp 
@@ -14,13 +16,50 @@
 		비밀번호 수정 실패.
 			메세지 출력 후 opener 페이지를 updateForm.jsp 페이지 이동. 현재 페이지 닫기
 --%>
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<title>Insert title here</title>
-</head>
-<body>
-
-</body>
-</html>
+<%
+	String login =(String)session.getAttribute("login");
+	boolean opener = true;
+	boolean closer = true;
+	String msg = null;
+	String url = null;
+	if(login == null) {
+		msg = "로그인하세요";
+		url = "loginForm.jsp";
+	} else {
+		//2.
+		String pass = request.getParameter("pass");
+		String chgpass = request.getParameter("chgpass");
+		
+		MemberDao dao = new MemberDao();
+		Member mem = dao.selectOne(login);
+		//4.
+		//pass : 입력된 기존비밀번호
+		//mem.getPass() : db에 등록된 비밀번호
+		if(pass.equals(mem.getPass())) {	//비밀번호 일치
+			if(dao.updatePass(login,chgpass)) {	//변경 성공
+				msg = "비밀번호가 변경되었습니다.";
+				url = "info.jsp?id="+login;
+			} else {	//변경 실채
+				msg = "비밀번호가 변경 시 오류가 발생했습니다.";
+				url = "updateForm.jsp?id="+login;
+			}
+		} else {	//비밀번호 오류. 기존비밀번호와 등록된 비밀번호가 틀린 경우
+		//3.
+			msg = "비밀번호가 틀립니다.";
+			closer = false;
+			opener = false;
+			url = "passwordForm.jsp";
+		}
+	}
+%>
+<script type="text/javascript">
+	alert("<%=msg %>")
+	<%if(opener) { %>
+		opener.location.href="<%=url%>"
+	<% } else { %>
+		location.href="<%=url %>"
+	<% } %>
+	<%if(closer) { %>
+		self.close()
+	<% } %>
+</script>

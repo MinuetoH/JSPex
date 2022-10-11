@@ -36,10 +36,14 @@
 <title>회원 정보 수정</title>
 <link rel="stylesheet" href="../../css/main.css">
 <script type="text/javascript">
-	function win_passchg() {
-		let op ="width=500,height=250,left=50,top=150"
-		open("passwordForm.jsp","",op )
-	}
+  function win_passchg() {
+	  let op = "width=500,height=250,left=50,top=150"
+	  open("passwordForm.jsp","",op)
+  }
+  function win_upload() {
+	   let op = "width=300,height=300,left=50,top=150"
+	   open("memberimg.jsp","",op)
+  }
 </script>
 </head>
 <body>

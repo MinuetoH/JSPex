@@ -24,7 +24,7 @@
 			return false
 		}
 		if(f.chgpass.value != f.chgpass2.value) {
-			alert("변경비밀번호와 변경비밀번호 재입력 겂이 다릅니다.")
+			alert("변경비밀번호와 변경비밀번호 재입력 값이 다릅니다.")
 			f.chgpass2.focus()
 			return false
 		}
