@@ -28,7 +28,7 @@
    }
    function win_open() {
 	   let op = "width=300,height=300,left=50,top=150"
-	   open("memberimg.jsp","",op)
+	   open("memberimg","",op)
    }
 </script>
 </head>
@@ -44,7 +44,9 @@
         <font size="1"><a href="javascript:win_open()">사진등록</a>
         </font></td>
      <td>아이디</td>
-      <td><input type="text" name="id"></td>
+      <td><input type="text" name="id">
+      <input type="submit" value="중복검색">
+      </td>
      </tr>
      <tr><td>비밀번호</td>
     <td><input type="password" name="pass"></td></tr>

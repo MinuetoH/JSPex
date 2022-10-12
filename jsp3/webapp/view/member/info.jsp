@@ -8,7 +8,7 @@
 </head><body>
 <table><caption>회원 정보 보기</caption>
 <tr><td rowspan="6" width="30%">
-<img src="picture/${mem.picture}" width="200" height="210">
+<img src="../picture/${mem.picture}" width="200" height="210">
 </td>
     <th width="20%">아이디</th><td>${mem.id}</td></tr>
 <tr><th>이름</th><td>${mem.name}</td></tr>
