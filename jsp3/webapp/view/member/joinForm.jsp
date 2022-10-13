@@ -30,6 +30,15 @@
 	   let op = "width=300,height=300,left=50,top=150"
 	   open("memberimg","",op)
    }
+   function idchk() {
+	   if (document.f.id.value == '') {
+		   alert("아이디를 입력하세요")
+		   f.id.focus()
+	   } else {
+	     let op = "width=500,height=200,left=50,top=150"
+	     open("idchk?id="+document.f.id.value,"",op)
+	   }
+   }
 </script>
 </head>
 <body>
@@ -37,16 +46,14 @@
    onsubmit="return check(this)">
    <%-- type="hidden" : 값은 존재. 화면없음. 파라미터값으로 서버에 전달 --%>
    <input type="hidden" name="picture" value="">
-   <table>
-     <caption>회원 가입</caption>
+   <table><caption>회원 가입</caption>
      <tr><td rowspan="4" align="center" valign="bottom">
         <img src="" width="100" height="120" id="pic"><br>
         <font size="1"><a href="javascript:win_open()">사진등록</a>
         </font></td>
      <td>아이디</td>
-      <td><input type="text" name="id">
-      <input type="submit" value="중복검색">
-      </td>
+      <td><input type="text" name="id" style="width:70%;">
+      <input type="button" value="중복검색" onclick="idchk()"></td>
      </tr>
      <tr><td>비밀번호</td>
     <td><input type="password" name="pass"></td></tr>

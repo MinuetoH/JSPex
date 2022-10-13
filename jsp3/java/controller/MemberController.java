@@ -488,4 +488,20 @@ public class MemberController extends MskimRequestMapping{
    	   request.setAttribute("closer", closer);
  	   return "/view/member/password.jsp";
     }
+    @RequestMapping("idchk")
+    public String idchk (HttpServletRequest request,
+    		HttpServletResponse response) {
+    	String id= request.getParameter("id");
+	    MemberDao dao = new MemberDao();
+	    Member mem = dao.selectOne(id);
+    	if(mem == null) {
+    		request.setAttribute("msg", "사용가능한 아이디 입니다.");
+    		request.setAttribute("able", true);
+    	} else {
+    		request.setAttribute("msg", "사용 중인 아이디 입니다.");
+    		request.setAttribute("able", false);
+    	}
+		return "/view/member/idchk.jsp";
+    }
+    
 }
