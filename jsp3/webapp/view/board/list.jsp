@@ -43,6 +43,7 @@
 			</c:forEach>	
 			</tbody>
 		</table>
+<%-- 공지사항일 경우 관리자만 게시글 입력 부분 출력 --%>
 <c:if 
   test="${(param.boardid != 1)||(sessionScope.login =='admin') }">
 		<p align="right"><a href="writeForm">게시글입력</a></p>
@@ -64,6 +65,5 @@
   Next</a></li> 
 </ul> </div>
 	</div>
-	<!-- table list end -->
 </body>
 </html>
