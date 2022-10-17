@@ -197,13 +197,12 @@ public class BoardController extends MskimRequestMapping{
 		return "/view/board/info.jsp";
 	}
 	@RequestMapping("updateForm")
-	public String updateForm(HttpServletRequest request, HttpServletResponse response) {
-		//num : 게시물 번호. 파라미터 값 저장
+   	public String updateForm(HttpServletRequest request, HttpServletResponse response) {
+		//num: 게시물번호. 파라미터값 저장
 		int num = Integer.parseInt(request.getParameter("num"));
 		//num에 해당하는 정보를 db에서 읽어서 Board객체에 저장
 		Board b = dao.selectOne(num);
 		request.setAttribute("b", b);
-		
 		return "/view/board/updateForm.jsp";
 	}
 	/*
@@ -219,43 +218,123 @@ public class BoardController extends MskimRequestMapping{
           	수정실패: 수정실패 메세지 출력 후 updateForm 페이지 이동
 	 */
 	@RequestMapping("update")
-	public String update(HttpServletRequest request, HttpServletResponse response) {
-		//1. 파일 업로드 하기
-		String path=getServletContext().getRealPath("/")+"/upload/";
-		int size = 10*1024*1024;
-		MultipartRequest multi = null;
-		try {
-			multi = new MultipartRequest(request, path, size, "UTF-8");
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		//2. 파라미터정보를 Board 객체 저장.
-		Board board = new Board();
-		board.setNum(Integer.parseInt(multi.getParameter("num")));
-		board.setWriter(multi.getParameter("writer"));
-		board.setPass(multi.getParameter("pass"));
-		board.setSubject(multi.getParameter("subject"));
-		board.setContent(multi.getParameter("centent"));
-		board.setFile1(multi.getParameter("file1"));
-		if(board.getFile1()==null || board.getFile1().equals("")) {
-			board.setFile1(multi.getParameter("file2"));
-		}
-		//3,4 비밀번호 검증
-		String msg = "비밀번호가 틀렸습니다.";
-		String url = "updateForm?num="+board.getNum();
-		Board dbBoard = dao.selectOne(board.getNum());
-		if(board.getPass().equals(dbBoard.getPass())) {
-			//db에 내용 수정
-			if(dao.update(board)) {
-				msg = "게시물이 변경되었습니다.";
-				url = "info?num="+board.getNum();
+   	public String update(HttpServletRequest request, HttpServletResponse response) {
+	 //1. 파일 업로드 하기
+     String path=getServletContext().getRealPath("/")+"/upload/";
+	 int size = 10*1024*1024;
+	 MultipartRequest multi = null;
+	 try {
+	   multi = new MultipartRequest(request,path,size,"UTF-8");
+	 } catch (IOException e) {
+		 e.printStackTrace();
+	 }
+	 //2. 파라미터정보를 Board 객체 저장
+	 Board board = new Board();
+	 board.setNum(Integer.parseInt(multi.getParameter("num")));
+	 board.setWriter(multi.getParameter("writer"));
+	 board.setPass(multi.getParameter("pass"));
+	 board.setSubject(multi.getParameter("subject"));
+	 board.setContent(multi.getParameter("content"));
+	 board.setFile1(multi.getFilesystemName("file1"));
+	 if(board.getFile1() == null || board.getFile1().equals("")) {
+		 board.setFile1(multi.getParameter("file2"));
+	 }
+	 //3,4 비밀번호 검증
+	 String msg = "비밀번호가 틀렸습니다.";
+	 String url = "updateForm?num="+board.getNum();
+	 Board dbBoard = dao.selectOne(board.getNum());
+	 if(board.getPass().equals(dbBoard.getPass())) {
+		 //db에 내용 수정
+		 if(dao.update(board)) {
+			 msg = "게시물이 변경되었습니다.";
+			 url = "info?num="+board.getNum();
+		 } else {
+			 msg = "게시물 변경시 오류가 있습니다.";
+		 }
+	 }
+	 request.setAttribute("msg", msg);
+	 request.setAttribute("url", url);
+	 return "/view/alert.jsp";
+	}
+	@RequestMapping("deleteForm")
+	public String deleteForm(HttpServletRequest request, HttpServletResponse response) {
+		return "/view/board/deleteForm.jsp";
+	}
+	@RequestMapping("delete")
+	public String delete(HttpServletRequest request, HttpServletResponse response) {
+		int num = Integer.parseInt(request.getParameter("num"));
+		String pass = request.getParameter("pass");
+		Board board = dao.selectOne(num);
+		String msg = "비밀번호가 틀립니다.";
+		String url = "deleteForm?num="+num;
+		if(pass.equals(board.getPass())) {
+			if(dao.delete(num)) {
+				msg = board.getWriter()+"님의 게시글이 삭제 되었습니다.";
 			} else {
-				msg = "게시물 변경 시 오류가 있습니다.";
+				msg = "게시글 삭제 시 오류가 있습니다.";
 			}
+			url = "list?boardid="+board.getBoardid();
 		}
 		request.setAttribute("msg", msg);
 		request.setAttribute("url", url);
 		return "/view/alert.jsp";
+	}
+	@RequestMapping("replyForm")
+	public String replyForm(HttpServletRequest request, HttpServletResponse response) {
+		int num = Integer.parseInt(request.getParameter("num"));
+		Board board = dao.selectOne(num);
+		request.setAttribute("board", board);
+		return "/view/board/replyForm.jsp";
+	}
+	/*
+	 * 1. 파라미터 값을 Board 객체에 저장하기
+	 * 	  원글 정보 : num, boardid, grp, grplevel, grpstep
+	 * 	  답글 정보 : writer, pass, subject, content => 입력내용
+	 * 2. 같은 grp에 해당하는 게시물들의 grpstep을 1씩 증가하기
+	 * 3. 답글 정보를 db에 추가하기
+	 * 	  num : maxnum + 1
+	 * 	  grp : 원글과 동일
+	 * 	  grplevel : 원글 + 1
+	 *    grpstep  : 원글 + 1
+	 * 4. 등록성공 : 답변등록 완료 메세지 추가 후 list로 페이지 이동
+	 *    등록실패 : 답변등록 실패 메세지 추가 후 replyForm 페이지 이동
+	 */
+	@RequestMapping("reply")
+	public String reply(HttpServletRequest request, HttpServletResponse response) {
+		try {
+			request.setCharacterEncoding("UTF-8");
+		} catch(UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		Board board = new Board();
+		board.setWriter(request.getParameter("writer"));
+		board.setPass(request.getParameter("pass"));
+		board.setSubject(request.getParameter("subject"));
+		board.setContent(request.getParameter("content"));
+		board.setBoardid(request.getParameter("boardid"));
+		board.setGrp(Integer.parseInt(request.getParameter("grp")));
+		int num = Integer.parseInt(request.getParameter("num"));
+		int grp = Integer.parseInt(request.getParameter("grp"));
+		int grplevel = Integer.parseInt(request.getParameter("grplevel"));
+		int grpstep = Integer.parseInt(request.getParameter("grpstep"));
+		//2. grpstep 1씩 증가
+		dao.grpStepAdd(grp,grpstep);
+		//3. 답글 db insert
+		board.setNum(dao.maxnum() + 1);
+		board.setGrplevel(grplevel + 1);
+		board.setGrpstep(grpstep + 1);	//원글 다음 자리
+		board.setFile1("");
+		String msg = "답변 등록 시 오류가 발생했습니다.";
+		String url = "replyForm?num="+num;
+		if(dao.insert(board)) {
+			msg = "답변 등록 완료";
+			url = "list?boardid="+board.getBoardid();
+		}
+		request.setAttribute("msg", msg);
+		request.setAttribute("url", url);
+		return "/view/alert.jsp";
+		
+		
 	}
 }
 

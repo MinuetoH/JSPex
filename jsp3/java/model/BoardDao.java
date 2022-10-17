@@ -130,6 +130,7 @@ public class BoardDao {
 			if(rs.next()) {
 				Board b = new Board();
 				b.setNum(rs.getInt("num"));
+				b.setBoardid(rs.getString("boardid"));
 				b.setWriter(rs.getString("writer"));
 				b.setPass(rs.getString("pass"));
 				b.setSubject(rs.getString("subject"));
@@ -140,6 +141,7 @@ public class BoardDao {
 				b.setGrpstep(rs.getInt("grpstep"));
 				b.setReadcnt(rs.getInt("readcnt"));
 				b.setRegdate(rs.getDate("regdate"));
+				
 				return b;	//db에 내용 저장
 			}
 		} catch (SQLException e) {
@@ -165,15 +167,32 @@ public class BoardDao {
 		}
 	}
 	public boolean update(Board board) {
-		String sql = "update board set subject=?,content=?,file1=?"+"where num=?";
+		String sql = "update board set "
+				+ " subject=?,content=?,file1=?"
+				+ " where num= ?";
 		Connection conn = DBConnection.getConnection();
 		PreparedStatement pstmt = null;
 		try {
-			pstmt = conn.prepareStatement(sql);
+			pstmt= conn.prepareStatement(sql);
 			pstmt.setString(1, board.getSubject());
 			pstmt.setString(2, board.getContent());
 			pstmt.setString(3, board.getFile1());
 			pstmt.setInt(4, board.getNum());
+			return pstmt.executeUpdate()>0;
+		} catch(SQLException e) {
+			e.printStackTrace();
+		} finally {
+			DBConnection.close(conn, pstmt, null);
+		}
+		return false;
+	}
+	public boolean delete(int num) {
+		String sql = "delete from board where num=?";
+		Connection conn = DBConnection.getConnection();
+		PreparedStatement pstmt = null;
+		try {
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, num);
 			return pstmt.executeUpdate() > 0;
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -181,5 +200,21 @@ public class BoardDao {
 			DBConnection.close(conn,pstmt,null);
 		}
 		return false;
+	}
+	public void grpStepAdd(int grp, int grpstep) {
+		String sql = "update board set grpstep = grpstep + 1"
+							+ "where grp=? and grpstep > ?";
+		Connection conn = DBConnection.getConnection();
+		PreparedStatement pstmt = null;
+		try {
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, grp);
+			pstmt.setInt(2, grpstep);
+			pstmt.executeUpdate();
+		} catch(SQLException e) {
+			e.printStackTrace();
+		} finally {
+			DBConnection.close(conn, pstmt, null);
+		}
 	}
 }

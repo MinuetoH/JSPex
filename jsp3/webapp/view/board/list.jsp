@@ -34,6 +34,10 @@
 					<td>${boardnum}</td>
 					<c:set var="boardnum" value="${boardnum - 1}"/>
 					<td>
+					<c:if test="${b.grplevel > 0 }">
+					<img src="../image/level.gif" width="${20*(b.grplevel-1) }">
+					<img src="../image/re.gif">
+					</c:if>
 				 <a href="info?num=${b.num}">${b.subject}</a></td>
 					<td>${b.writer}</td>
 					<td>${b.regdate}</td>
